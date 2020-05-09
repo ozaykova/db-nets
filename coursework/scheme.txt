@@ -1,0 +1,8 @@
+TAXI
+TaxiId PlateNum IsFree
+BOOKING
+BookingId TaxiId PickupDataId PhoneId
+PHONE
+PhoneId Phone
+PICKUP DATA
+PickupDataId Address Time
