@@ -1,3 +1,5 @@
+#pragma once
+
 #include <optional>
 #include <string>
 #include <vector>
@@ -21,6 +23,7 @@ struct Log {
     std::string tableName;
     std::optional<Diff> diff;
 };
+
 
 class LogParser {
 public:

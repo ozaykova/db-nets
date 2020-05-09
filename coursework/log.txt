@@ -13,7 +13,7 @@ PHONE
 1, {}, {1, 88005553535}
 1
 insert
-Pickup data
+PICKUP DATA
 1, {}, {1, Red Square, 00:00 01.01.2042}
 2
 start process
@@ -41,7 +41,7 @@ PHONE
 2, {}, {2, 899900099999}
 2
 insert
-Booking
+BOOKING
 2, {}, {2, 2, 2, 2}
 2
 finish process

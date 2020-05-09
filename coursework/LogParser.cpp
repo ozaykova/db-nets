@@ -5,7 +5,6 @@
 #include "LogParser.h"
 
 void LogParser::getData(std::vector<std::string>& vec, std::istringstream& is) {
-
     char c;
     while(is.get(c) && c != '{');
 
@@ -31,7 +30,6 @@ void LogParser::getLog() {
     for (size_t i = 0; i < count; ++i) {
         Log log;
         getline(fin, s);
-        std::cout << s << std::endl;
         log.sessionId = stoi(s);
         getline(fin, s);
         log.actionType = s;
