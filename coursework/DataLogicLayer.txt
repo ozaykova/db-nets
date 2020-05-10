@@ -1,0 +1,4 @@
+INSERT INTO BOOKING(BookingId, TaxiId, PickupDataId, PhoneId);
+INSERT INTO PHONE(PhoneId, Phone);
+INSERT INTO PICKUP DATA(PickupDataId, Address, Time);
+UPDATE TAXI IsFree == val WHERE TaxiId == val AND PlateNum == val AND IsFree == val; 

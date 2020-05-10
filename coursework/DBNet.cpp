@@ -25,6 +25,53 @@ void DBNet::getScheme() {
     fin.close();
 }
 
+void DBNet::generateDataLogicLayer(std::string& action, std::string& table,
+        std::vector<std::string>& attrs, std::vector<std::string>& scheme = *(new std::vector<std::string>())) {
+    std::stringstream ss;
+    if (action == "insert") {
+        ss << "INSERT INTO " << table << "(";
+        for (size_t i = 0; i < attrs.size(); ++i) {
+            if (i == attrs.size() - 1) {
+                ss << attrs[i] << ");";
+            } else {
+                ss << attrs[i] << ", ";
+            }
+        }
+    }
+
+    if (action == "delete") {
+        ss << "DELETE FROM " << table << " WHERE ";
+        for (size_t i = 0; i < attrs.size(); ++i) {
+            if (i == attrs.size() - 1) {
+                ss << attrs[i] << " == val;";
+            } else {
+                ss << attrs[i] << " == val AND ";
+            }
+        }
+    }
+
+    if (action == "update") {
+        ss << "UPDATE " << table << " ";
+        for (size_t i = 0; i < attrs.size(); ++i) {
+            if (i == attrs.size() - 1) {
+                ss << attrs[i] << " == val ";
+            } else {
+                ss << attrs[i] << " == val, ";
+            }
+        }
+        ss << "WHERE ";
+        for (size_t i = 0; i < scheme.size(); ++i) {
+            if (i == scheme.size() - 1) {
+                ss << scheme[i] << " == val; ";
+            } else {
+                ss << scheme[i] << " == val AND ";
+            }
+        }
+    }
+
+    dataLogicLayer.insert(ss.str());
+}
+
 std::string DBNet::getFinalDiff(Log& event){
     if (event.actionType == "insert") {
         std::string result = "insert: ";
@@ -32,6 +79,7 @@ std::string DBNet::getFinalDiff(Log& event){
             for (auto& columnName: persistentLayer[event.tableName]) {
                 result += columnName + ", ";
             }
+            generateDataLogicLayer(event.actionType, event.tableName, persistentLayer[event.tableName]);
             return result;
         } else {
             std::cout << "Table " << event.tableName << " is not exist in scheme";
@@ -53,11 +101,14 @@ std::string DBNet::getFinalDiff(Log& event){
                     exit(0);
                 }
 
+                std::vector<std::string> tmp;
                 for (size_t i = 0; i < diff.oldVal.size(); ++i) {
                     if (diff.oldVal[i] != diff.newVal[i]) {
                         result += persistentLayer[event.tableName][i] + ", ";
+                        tmp.push_back(persistentLayer[event.tableName][i]);
                     }
                 }
+                generateDataLogicLayer(event.actionType, event.tableName, tmp, persistentLayer[event.tableName]);
                 return result;
             }
         } else {
@@ -65,7 +116,22 @@ std::string DBNet::getFinalDiff(Log& event){
             exit(0);
         }
     }
+
+    if (event.actionType == "delete") {
+        generateDataLogicLayer(event.actionType, event.tableName, persistentLayer[event.tableName]);
+    }
     return event.actionType + "  ";
+}
+
+void DBNet::saveDataLogicLayer() {
+    std::ofstream fout;
+    fout.open("DataLogicLayer.txt");
+
+    for (auto& a: dataLogicLayer) {
+        fout << a << std::endl;
+    }
+
+    fout.close();
 }
 
 void DBNet::getTraces(std::vector<Log>& journal) {
