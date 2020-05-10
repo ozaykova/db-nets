@@ -4,4 +4,4 @@ project(coursework)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(coursework main.cpp DBNet.cpp LogParser.cpp PetriNet.cpp Scheme.cpp)
+add_executable(coursework main.cpp DBNet.cpp LogParser.cpp PetriNet.cpp Dependencies.cpp)

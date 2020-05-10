@@ -16,7 +16,8 @@ public:
     void getTraces(std::vector<Log>& journal);
     void showTraces();
 
+    std::map<int, std::vector<std::string>> traces;
+
 private:
-    std::map<int, std::string> traces;
     std::string getFinalDiff(Log& event);
 };

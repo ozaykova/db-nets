@@ -14,5 +14,8 @@ int main() {
     net.getTraces(parser.journal);
     std::cout << "Traces has been got" << std::endl;
     net.showTraces();
+    net.controlLayer = new PetriNet;
+    std::cout << "Start mine control layer" << std::endl;
+    net.controlLayer->prepareInitialData(net.traces);
     return 0;
 }

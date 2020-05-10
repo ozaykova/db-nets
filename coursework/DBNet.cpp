@@ -27,7 +27,7 @@ void DBNet::getScheme() {
 
 std::string DBNet::getFinalDiff(Log& event){
     if (event.actionType == "insert") {
-        std::string result = "insert | ";
+        std::string result = "insert: ";
         if (persistentLayer.find(event.tableName) != persistentLayer.end()) {
             for (auto& columnName: persistentLayer[event.tableName]) {
                 result += columnName + ", ";
@@ -40,7 +40,7 @@ std::string DBNet::getFinalDiff(Log& event){
     }
 
     if (event.actionType == "update") {
-        std::string result = "update | ";
+        std::string result = "update: ";
         if (persistentLayer.find(event.tableName) != persistentLayer.end()) {
             if (!event.diff.has_value()) {
                 std::cout << "Empty diff in update operation";
@@ -71,12 +71,16 @@ std::string DBNet::getFinalDiff(Log& event){
 void DBNet::getTraces(std::vector<Log>& journal) {
     for (auto& event: journal) {
         std::string diff = getFinalDiff(event);
-        traces[event.sessionId] += diff.substr(0, diff.size() - 2) + ";";
+        traces[event.sessionId].push_back(diff.substr(0, diff.size() - 2));
     }
 }
 
 void DBNet::showTraces() {
-    for (auto& a: traces) {
-        std::cout << "Session id: " << a.first << std::endl << a.second << std::endl;
+    for (auto& trace: traces) {
+        std::cout << "Session id: " << trace.first << std::endl;
+        for (auto& event: trace.second) {
+            std::cout << event << ";";
+        }
+        std::cout << std::endl;
     }
 }
