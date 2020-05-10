@@ -22,6 +22,11 @@ public:
 
     std::map<int, std::vector<std::string>> traces;
 
+    std::map<std::string, std::set<std::string> > placesAttributes;
+
+    void getPlacesAttributes();
+
 private:
     std::string getFinalDiff(Log& event);
+    std::unordered_map<std::string, std::vector<std::string>> smartDiff;
 };

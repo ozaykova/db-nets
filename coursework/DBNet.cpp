@@ -1,7 +1,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <queue>
 #include "DBNet.h"
+
 
 void DBNet::getScheme() {
     std::ifstream fin;
@@ -80,6 +82,7 @@ std::string DBNet::getFinalDiff(Log& event){
                 result += columnName + ", ";
             }
             generateDataLogicLayer(event.actionType, event.tableName, persistentLayer[event.tableName]);
+            smartDiff[result.substr(0, result.size() - 2)] = persistentLayer[event.tableName];
             return result;
         } else {
             std::cout << "Table " << event.tableName << " is not exist in scheme";
@@ -109,6 +112,7 @@ std::string DBNet::getFinalDiff(Log& event){
                     }
                 }
                 generateDataLogicLayer(event.actionType, event.tableName, tmp, persistentLayer[event.tableName]);
+                smartDiff[result.substr(0, result.size() - 2)] = tmp;
                 return result;
             }
         } else {
@@ -119,6 +123,7 @@ std::string DBNet::getFinalDiff(Log& event){
 
     if (event.actionType == "delete") {
         generateDataLogicLayer(event.actionType, event.tableName, persistentLayer[event.tableName]);
+        smartDiff["delete"] = persistentLayer[event.tableName];
     }
     return event.actionType + "  ";
 }
@@ -146,6 +151,55 @@ void DBNet::showTraces() {
         std::cout << "Session id: " << trace.first << std::endl;
         for (auto& event: trace.second) {
             std::cout << event << ";";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void DBNet::getPlacesAttributes() {
+    std::queue<Place*> q;
+    std::set<std::string> visited;
+
+    q.push(controlLayer->places[0]);
+
+    while (!q.empty()) {
+        auto& cur = q.front();
+        if (visited.find(cur->name) != visited.end()) {
+            q.pop();
+            continue;
+        }
+
+        for (auto& transition: cur->kids) {
+            for (auto& place: transition->kids) {
+                for (auto& attr: placesAttributes[cur->name]) {
+                    placesAttributes[place->name].insert(attr);
+                }
+
+                if (transition->name.find("insert") != std::string::npos
+                    || transition->name.find("update") != std::string::npos) {
+                    for (auto& attr: smartDiff[transition->name]) {
+                        placesAttributes[place->name].insert(attr);
+                    }
+                }
+
+                if (transition->name.find("delete") != std::string::npos) {
+                    for (auto& attr: smartDiff[transition->name]) {
+                        placesAttributes[place->name].erase(attr);
+                    }
+                }
+
+                q.push(place);
+            }
+        }
+
+        visited.insert(cur->name);
+        q.pop();
+    }
+
+    for (auto& attrs: placesAttributes) {
+        std::cout << attrs.first << ": ";
+        for (auto& attr: attrs.second) {
+            std::cout << attr << "; ";
         }
         std::cout << std::endl;
     }

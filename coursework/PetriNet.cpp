@@ -155,7 +155,7 @@ void PetriNet::prepareInitialData(std::map<int, std::vector<std::string>>& trace
 
 void PetriNet::dotSerializer() {
     std::ofstream fout;
-    fout.open("D:output.txt");
+    fout.open("output.txt");
 
     std::set<std::string> s;
     fout << "Digraph {" << std::endl;

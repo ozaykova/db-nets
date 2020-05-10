@@ -18,5 +18,6 @@ int main() {
     std::cout << "Start mine control layer" << std::endl;
     net.controlLayer->prepareInitialData(net.traces);
     net.saveDataLogicLayer();
+    net.getPlacesAttributes();
     return 0;
 }
