@@ -135,6 +135,11 @@ void PetriNet::minePetriNet() {
 void PetriNet::prepareInitialData(std::map<int, std::vector<std::string>>& traces) {
     for (auto& trace: traces) {
         for (size_t i = 0; i < trace.second.size(); ++i) {
+            if (isFirstConnection && (trace.second[i].find("insert") != std::string::npos
+                || trace.second[i].find("update") != std::string::npos)) {
+                isFirstConnection = false;
+                firstDatabaseWorker = trace.second[i];
+            }
             FullState[trace.second[i]]++;
             if (i == 0) {
                 Begining.push_back(trace.second[i]);
@@ -165,6 +170,9 @@ void PetriNet::dotSerializer() {
     }
     fout << std::endl;
     fout << "node [shape = circle];" << std::endl;
+
+    fout << "\"" << firstDatabaseWorker << "\"" << "->" << "\"" << "DATABASE" << "\"" << std::endl;
+
     for (auto& a : places) {
         for (auto b : a->kids) {
             s.insert("\"" + a->name + "\"" + "->" + "\"" + b->name + "\"");

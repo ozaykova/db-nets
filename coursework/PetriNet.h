@@ -50,4 +50,8 @@ public:
     std::set<std::string> allTransitions;
 
     void dotSerializer();
+
+private:
+    std::string firstDatabaseWorker;
+    bool isFirstConnection = true;
 };

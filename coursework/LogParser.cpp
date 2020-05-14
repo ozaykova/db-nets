@@ -5,7 +5,6 @@
 #include "LogParser.h"
 
 void LogParser::getData(std::vector<std::string>& vec, std::istringstream& is) {
-
     char c;
     while(is.get(c) && c != '{');
 

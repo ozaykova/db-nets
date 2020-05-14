@@ -29,4 +29,5 @@ public:
 private:
     std::string getFinalDiff(Log& event);
     std::unordered_map<std::string, std::vector<std::string>> smartDiff;
+    void tracesProcessor(Log& event);
 };

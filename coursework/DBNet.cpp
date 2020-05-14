@@ -2,7 +2,9 @@
 #include <sstream>
 #include <iostream>
 #include <queue>
+#include <thread>
 #include "DBNet.h"
+#include "ThreadPool.h"
 
 
 void DBNet::getScheme() {
@@ -139,10 +141,26 @@ void DBNet::saveDataLogicLayer() {
     fout.close();
 }
 
+void DBNet::tracesProcessor(Log& event) {
+    std::string diff = getFinalDiff(event);
+    traces[event.sessionId].push_back(diff.substr(0, diff.size() - 2));
+}
+
 void DBNet::getTraces(std::vector<Log>& journal) {
+    ThreadPool pool;
+    int num_threads = std::thread::hardware_concurrency();
+    std::vector<std::thread> thread_pool;
+    for (int i = 0; i < num_threads; i++) {
+        thread_pool.push_back(std::thread(&ThreadPool::infinite_loop_func, &pool));
+    }
+
     for (auto& event: journal) {
-        std::string diff = getFinalDiff(event);
-        traces[event.sessionId].push_back(diff.substr(0, diff.size() - 2));
+        pool.push((tracesProcessor, event);
+    }
+    pool.done();
+    for (size_t i = 0; i < thread_pool.size(); i++)
+    {
+        thread_pool.at(i).join();
     }
 }
 
