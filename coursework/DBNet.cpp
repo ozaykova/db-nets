@@ -155,7 +155,8 @@ void DBNet::getTraces(std::vector<Log>& journal) {
     }
 
     for (auto& event: journal) {
-        pool.push((tracesProcessor, event);
+        std::function<void(Log&)> func = [this](Log& event) { tracesProcessor(event); };
+            pool.push(func, event);
     }
     pool.done();
     for (size_t i = 0; i < thread_pool.size(); i++)
