@@ -11,7 +11,7 @@ class Transition;
 
 class Place {
 public:
-    std::vector<Transition*> kids;
+    std::vector<Transition*> children;
     std::vector<Transition*> parents;
     std::string name;
 
@@ -20,7 +20,7 @@ public:
 
 class Transition {
 public:
-    std::vector<Place*> kids;
+    std::vector<Place*> children;
     std::vector<Place*> parents;
     std::string name;
 
@@ -44,9 +44,7 @@ public:
     std::vector<std::string> Ending;
 
     Dependencies depend;
-
-    std::vector<std::string> transitions_name;
-
+    
     std::set<std::string> allTransitions;
 
     void dotSerializer();

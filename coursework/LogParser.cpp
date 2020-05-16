@@ -21,9 +21,14 @@ void LogParser::getData(std::vector<std::string>& vec, std::istringstream& is) {
     curr.clear();
 }
 
-void LogParser::getLog() {
+void LogParser::getLog(std::string& logPath) {
     std::ifstream fin;
-    fin.open("log.txt", std::ios::in);
+    fin.open(logPath, std::ios::in);
+    if (!fin.is_open()) {
+        std::cout << "Wrong log path. Check --help.";
+        exit(0);
+    }
+
     std::string s;
     getline(fin, s);
     int count = stoi(s);
@@ -38,12 +43,10 @@ void LogParser::getLog() {
         getline(fin, s);
         if (s != "null") {
             std::istringstream is(s);
-            is >> s;
-            int row = stoi(s.substr(0, s.size() - 1));
             std::vector<std::string> oldVal, newVal;
             getData(oldVal, is);
             getData(newVal, is);
-            log.diff = Diff(row, oldVal, newVal);
+            log.diff = Diff(oldVal, newVal);
         }
         journal.push_back(log);
     }

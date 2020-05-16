@@ -6,11 +6,11 @@ void PetriNet::prepareInitialPlaceTransitions(Place* A, std::pair<std::pair<std:
     for (auto a : transitions) {
         if (a->name == i.first.first) {
             A->parents.push_back(a);
-            a->kids.push_back(A);
+            a->children.push_back(A);
         }
 
         if (a->name == i.first.second) {
-            A->kids.push_back(a);
+            A->children.push_back(a);
             a->parents.push_back(A);
         }
     }
@@ -50,7 +50,7 @@ int PetriNet::greedyILPSolver() {
                     for (auto& a : transitions) {
                         if (a->name == addTransition) {
                             A->parents.push_back(a);
-                            a->kids.push_back(A);
+                            a->children.push_back(A);
                             auto rem = find(depend.causalDependencies.begin(), depend.causalDependencies.end(), copyy);
                             (*rem).second = 1;
                         }
@@ -82,7 +82,7 @@ int PetriNet::greedyILPSolver() {
                         countILP -= cur_value;
                         for (auto a : transitions) {
                             if (a->name == addTransition) {
-                                A->kids.push_back(a);
+                                A->children.push_back(a);
                                 a->parents.push_back(A);
                                 auto rem = find(depend.causalDependencies.begin(), depend.causalDependencies.end(), copyy);
                                 (*rem).second = 1;
@@ -102,7 +102,6 @@ int PetriNet::greedyILPSolver() {
 
 void PetriNet::minePetriNet() {
     for (auto i : FullState) {
-        transitions_name.push_back(i.first);
         Transition* cur = new Transition(i.first);
         transitions.push_back(cur);
     }
@@ -112,7 +111,7 @@ void PetriNet::minePetriNet() {
         for (auto j : transitions) {
             if (j->name == i) {
                 j->parents.push_back(A);
-                A->kids.push_back(j);
+                A->children.push_back(j);
             }
         }
     }
@@ -125,7 +124,7 @@ void PetriNet::minePetriNet() {
         for (auto j : transitions) {
             if (i == j->name) {
                 A->parents.push_back(j);
-                j->kids.push_back(A);
+                j->children.push_back(A);
             }
         }
     }
@@ -174,9 +173,9 @@ void PetriNet::dotSerializer() {
     fout << "\"" << firstDatabaseWorker << "\"" << "->" << "\"" << "DATABASE" << "\"" << std::endl;
 
     for (auto& a : places) {
-        for (auto b : a->kids) {
+        for (auto b : a->children) {
             s.insert("\"" + a->name + "\"" + "->" + "\"" + b->name + "\"");
-            for (auto c : b->kids) {
+            for (auto c : b->children) {
                 s.insert("\"" + b->name + "\"" + "->" + "\"" + c->name + "\"");
             }
         }

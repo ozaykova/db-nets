@@ -6,15 +6,15 @@ null
 1
 update
 TAXI
-1, {1, 123, true}, {1, 123, false}
+{1, 123, true}, {1, 123, false}
 1
 insert
 PHONE
-1, {}, {1, 88005553535}
+{}, {1, 88005553535}
 1
 insert
 PICKUP DATA
-1, {}, {1, Red Square, 00:00 01.01.2042}
+{}, {1, Red Square, 00:00 01.01.2042}
 2
 start process
 null
@@ -22,15 +22,15 @@ null
 2
 update
 TAXI
-2, {2, 456, true}, {2, 456, false}
+{2, 456, true}, {2, 456, false}
 1
 insert
 BOOKING
-1, {}, {1, 1, 1, 1}
+{}, {1, 1, 1, 1}
 2
 insert
 PICKUP DATA
-2, {}, {2, Big Theatre, 04:40 01.12.2020}
+{}, {2, Big Theatre, 04:40 01.12.2020}
 1
 finish process
 null
@@ -38,11 +38,11 @@ null
 2
 insert
 PHONE
-2, {}, {2, 899900099999}
+{}, {2, 899900099999}
 2
 insert
 BOOKING
-2, {}, {2, 2, 2, 2}
+{}, {2, 2, 2, 2}
 2
 finish process
 null

@@ -7,9 +7,13 @@
 #include "ThreadPool.h"
 
 
-void DBNet::getScheme() {
+void DBNet::getScheme(std::string& schemePath) {
     std::ifstream fin;
-    fin.open("scheme.txt", std::ios::binary);
+    fin.open(schemePath, std::ios::binary);
+    if (!fin.is_open()) {
+        std::cout << "Wrong path to scheme. Check --help.\n";
+        exit(0);
+    }
 
     std::string name;
 
@@ -23,7 +27,6 @@ void DBNet::getScheme() {
         while(is >> s) {
             attrs.push_back(s);
         }
-
         persistentLayer[name] = attrs;
     }
     fin.close();
@@ -77,15 +80,18 @@ void DBNet::generateDataLogicLayer(std::string& action, std::string& table,
 }
 
 std::string DBNet::getFinalDiff(Log& event){
-    if (event.actionType == "insert") {
-        std::string result = "insert: ";
+    if (event.actionType == "insert" || event.actionType == "update") {
+        std::string result = event.tableName + " insert: ";
         if (persistentLayer.find(event.tableName) != persistentLayer.end()) {
-            for (auto& columnName: persistentLayer[event.tableName]) {
+            for (auto &columnName: persistentLayer[event.tableName]) {
                 result += columnName + ", ";
             }
-            generateDataLogicLayer(event.actionType, event.tableName, persistentLayer[event.tableName]);
             smartDiff[result.substr(0, result.size() - 2)] = persistentLayer[event.tableName];
-            return result;
+
+            if (event.actionType == "insert") {
+                generateDataLogicLayer(event.actionType, event.tableName, persistentLayer[event.tableName]);
+                return result;
+            }
         } else {
             std::cout << "Table " << event.tableName << " is not exist in scheme";
             exit(0);
@@ -93,7 +99,7 @@ std::string DBNet::getFinalDiff(Log& event){
     }
 
     if (event.actionType == "update") {
-        std::string result = "update: ";
+        std::string result = event.tableName + " update: ";
         if (persistentLayer.find(event.tableName) != persistentLayer.end()) {
             if (!event.diff.has_value()) {
                 std::cout << "Empty diff in update operation";
@@ -107,13 +113,16 @@ std::string DBNet::getFinalDiff(Log& event){
                 }
 
                 std::vector<std::string> tmp;
+                std::vector<std::string> saved;
                 for (size_t i = 0; i < diff.oldVal.size(); ++i) {
                     if (diff.oldVal[i] != diff.newVal[i]) {
                         result += persistentLayer[event.tableName][i] + ", ";
                         tmp.push_back(persistentLayer[event.tableName][i]);
+                    } else {
+                        saved.push_back(persistentLayer[event.tableName][i]);
                     }
                 }
-                generateDataLogicLayer(event.actionType, event.tableName, tmp, persistentLayer[event.tableName]);
+                generateDataLogicLayer(event.actionType, event.tableName, tmp, saved);
                 smartDiff[result.substr(0, result.size() - 2)] = tmp;
                 return result;
             }
@@ -151,7 +160,7 @@ void DBNet::getTraces(std::vector<Log>& journal) {
     int num_threads = std::thread::hardware_concurrency();
     std::vector<std::thread> thread_pool;
     for (int i = 0; i < num_threads; i++) {
-        thread_pool.push_back(std::thread(&ThreadPool::infinite_loop_func, &pool));
+        thread_pool.push_back(std::thread(&ThreadPool::infiniteWaiting, &pool));
     }
 
     for (auto& event: journal) {
@@ -175,6 +184,14 @@ void DBNet::showTraces() {
     }
 }
 
+std::string DBNet::isTable(std::string &s) {
+    auto probablyTable = s.substr(0, s.find(" "));
+    if (persistentLayer.find(probablyTable) != persistentLayer.end()) {
+        return probablyTable + " ";
+    }
+    return "";
+}
+
 void DBNet::getPlacesAttributes() {
     std::queue<Place*> q;
     std::set<std::string> visited;
@@ -188,22 +205,23 @@ void DBNet::getPlacesAttributes() {
             continue;
         }
 
-        for (auto& transition: cur->kids) {
-            for (auto& place: transition->kids) {
+        for (auto& transition: cur->children) {
+            auto tableName = isTable(transition->name);
+            for (auto& place: transition->children) {
                 for (auto& attr: placesAttributes[cur->name]) {
-                    placesAttributes[place->name].insert(attr);
+                    placesAttributes[place->name].insert(tableName + attr);
                 }
 
                 if (transition->name.find("insert") != std::string::npos
                     || transition->name.find("update") != std::string::npos) {
                     for (auto& attr: smartDiff[transition->name]) {
-                        placesAttributes[place->name].insert(attr);
+                        placesAttributes[place->name].insert(tableName + attr);
                     }
                 }
 
                 if (transition->name.find("delete") != std::string::npos) {
                     for (auto& attr: smartDiff[transition->name]) {
-                        placesAttributes[place->name].erase(attr);
+                        placesAttributes[place->name].erase(tableName + attr);
                     }
                 }
 

@@ -12,7 +12,7 @@ public:
     std::set<std::string> dataLogicLayer;
     PetriNet* controlLayer;
 
-    void getScheme();
+    void getScheme(std::string& schemePath);
     void getTraces(std::vector<Log>& journal);
     void showTraces();
     void generateDataLogicLayer(std::string& action, std::string& table,
@@ -30,4 +30,5 @@ private:
     std::string getFinalDiff(Log& event);
     std::unordered_map<std::string, std::vector<std::string>> smartDiff;
     void tracesProcessor(Log& event);
+    std::string isTable(std::string& s);
 };
