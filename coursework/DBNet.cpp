@@ -184,6 +184,21 @@ void DBNet::showTraces() {
     }
 }
 
+
+void DBNet::saveTraces() {
+    std::ofstream fout;
+    fout.open("Traces.txt");
+
+    for (auto& trace: traces) {
+        fout << "Session id: " << trace.first << std::endl;
+        for (auto& event: trace.second) {
+            fout << event << ";";
+        }
+        fout << std::endl;
+    }
+    fout.close();
+}
+
 std::string DBNet::isTable(std::string &s) {
     auto probablyTable = s.substr(0, s.find(" "));
     if (persistentLayer.find(probablyTable) != persistentLayer.end()) {
@@ -233,11 +248,15 @@ void DBNet::getPlacesAttributes() {
         q.pop();
     }
 
+    std::ofstream fout;
+    fout.open("Attributes.txt");
+
     for (auto& attrs: placesAttributes) {
-        std::cout << attrs.first << ": ";
+        fout << attrs.first << ": ";
         for (auto& attr: attrs.second) {
-            std::cout << attr << "; ";
+            fout << attr << "; ";
         }
-        std::cout << std::endl;
+        fout << std::endl;
     }
+    fout.close();
 }

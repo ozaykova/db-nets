@@ -14,6 +14,7 @@ public:
 
     void getScheme(std::string& schemePath);
     void getTraces(std::vector<Log>& journal);
+    void saveTraces();
     void showTraces();
     void generateDataLogicLayer(std::string& action, std::string& table,
             std::vector<std::string>& attrs, std::vector<std::string>& scheme);
