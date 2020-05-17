@@ -190,9 +190,8 @@ void DBNet::saveTraces() {
     fout.open("Traces.txt");
 
     for (auto& trace: traces) {
-        fout << "Session id: " << trace.first << std::endl;
         for (auto& event: trace.second) {
-            fout << event << ";";
+            fout << "\"" << event << "\"" << ";";
         }
         fout << std::endl;
     }
@@ -200,9 +199,10 @@ void DBNet::saveTraces() {
 }
 
 std::string DBNet::isTable(std::string &s) {
-    auto probablyTable = s.substr(0, s.find(" "));
-    if (persistentLayer.find(probablyTable) != persistentLayer.end()) {
-        return probablyTable + " ";
+    for (auto table: persistentLayer) {
+        if (s.find(table.first) == 0) {
+            return table.first + " ";
+        }
     }
     return "";
 }
@@ -224,7 +224,7 @@ void DBNet::getPlacesAttributes() {
             auto tableName = isTable(transition->name);
             for (auto& place: transition->children) {
                 for (auto& attr: placesAttributes[cur->name]) {
-                    placesAttributes[place->name].insert(tableName + attr);
+                    placesAttributes[place->name].insert(attr);
                 }
 
                 if (transition->name.find("insert") != std::string::npos

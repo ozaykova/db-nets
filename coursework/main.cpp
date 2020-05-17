@@ -74,7 +74,9 @@ int main(int argc, char **argv) {
     net.controlLayer = new PetriNet;
     std::cout << "Start mine control layer" << std::endl;
     net.controlLayer->prepareInitialData(net.traces);
+    std::cout << "Mining net done";
     net.saveDataLogicLayer();
     net.getPlacesAttributes();
+    net.saveTraces();
     return 0;
 }
